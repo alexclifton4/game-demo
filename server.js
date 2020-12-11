@@ -100,4 +100,4 @@ let sendUpdates = function() {
   
   broadcastMessage("5", message)
 }
-setInterval(sendUpdates, 1000)
+setInterval(sendUpdates, 100)

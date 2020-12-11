@@ -1,4 +1,6 @@
 let Network = {}
+Network.connected = false
+Network.playersToAdd = []
 let socket;
 
 // Open the socket
@@ -37,25 +39,41 @@ socket.addEventListener('message', event => {
 // Request to join returned
 let joined = function(id) {
   console.log("Joined with ID " + id)
-  player.id = id
+    Network.connected = true
+  Game.player.id = id
 }
 
 // Another player joined
 let newPlayer = function(id) {
   // Ignore if its this player
-  if (id != player.id) {
+  if (id != Game.player.id) {
     console.log("Another player joined with ID " + id)
+    Network.playersToAdd.push(id)
   }
 }
 
 // Receive all player positions from the server
 let updatePlayers = function(players) {
-  console.log(players)
+  // Players are separated by commas
+  players.split(",").forEach((player) => {
+      // player is x followed by y then player id
+      // x and y are 3 characters each
+      let x = player.substring(0, 3)
+      let y = player.substring(3, 6)
+      let id = player.substring(6)
+      
+      // Ignore the local player
+      if (id != Game.player.id) {
+        // update the other players location
+        Game.otherPlayers[id].x = x
+        Game.otherPlayers[id].y = y
+      }
+  })
 }
 
 // Send update to server
 Network.update = function() {
-  let x = player.x.toFixed(0).padStart(3, '0')
-  let y = player.y.toFixed(0).padStart(3, '0')
-  socket.send(`4${x}${y}${player.id}`)
+  let x = Game.player.x.toFixed(0).padStart(3, '0')
+  let y = Game.player.y.toFixed(0).padStart(3, '0')
+  socket.send(`4${x}${y}${Game.player.id}`)
 }
