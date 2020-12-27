@@ -39,6 +39,16 @@ wss.on('connection', (ws) => {
         break
     }
   })
+  
+  // When a connection is closed
+  ws.on('close', (code, reason) => {
+    console.log("Player leaving: " + ws.id)
+    // Remove them from the server
+    delete players[ws.id]
+    
+    // Tell all other players
+    broadcastMessage("7", ws.id)
+  })
 })
 
 // Send a message to a socket
@@ -65,28 +75,39 @@ let joinRequest = function(ws, message) {
   let player = {}
   player.id = nextPlayerId++
   player.ws = ws
-  player.x = player.y = "000"
+  player.x = (Math.random()*775).toFixed(0).padStart(3, '0')
+  player.y = (Math.random()*575).toFixed(0).padStart(3, '0')
+  player.colour = (Math.random()*0xffffff).toString(16).slice(-6)
   players[player.id] = player
+  
+  ws.id = player.id
   
   console.log("Player joined with ID: ", player.id)
   
-  // Send the id to the player
-  sendMessage(ws, "2", player.id)
+  // Send the player details to the player
+  // Format: colour(6 digits) XY(3 + 3 digits) id(remaining digits to end)
+  let newMessage = player.colour + player.x + player.y + player.id
+  // Add the existing players to the message, in the same format
+  for (let id in players) {
+    // ignore the player that we are sending the message to
+    if (id != player.id)
+    newMessage += "," + players[id].colour + players[id].x + players[id].y + id
+  }
+  sendMessage(ws, "2", newMessage)
   
   // Broadcast the new player to all other players
-  broadcastMessage("3", player.id)
+  broadcastMessage("3", player.colour + player.x + player.y + player.id)
 }
 
 // Receive a position update
 let playerPosition = function(ws, message) {
-  // Message is x followed by y then player id
+  // Message is x followed by y
   // x and y are 3 characters each
   let x = message.substring(0, 3)
   let y = message.substring(3, 6)
-  let id = message.substring(6)
   
-  players[id].x = x
-  players[id].y = y
+  players[ws.id].x = x
+  players[ws.id].y = y
 }
 
 // Called periodically to send updates to players

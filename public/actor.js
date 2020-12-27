@@ -1,8 +1,8 @@
 // Actor constructor
-function Actor(x, y, speed) {
+function Actor(x, y, speed, colour) {
   // Create the graphic
   let actor = new PIXI.Graphics()
-  actor.beginFill(0xFF0000)
+  actor.beginFill(colour)
   actor.drawRect(0, 0, 25, 25)
   actor.endFill()
   
@@ -13,6 +13,7 @@ function Actor(x, y, speed) {
   
   // Add member functions
   actor.move = move
+  actor.remove = remove
   
   // Add to the stage and return
   app.stage.addChild(actor)
@@ -29,4 +30,10 @@ const move = function(dx, dy, delta) {
   if (this.y < 0) this.y = 0
   if (this.x + this.width > app.screen.width) this.x = app.screen.width - this.width
   if (this.y + this.height > app.screen.height) this.y = app.screen.height - this.height
+}
+
+// Removes an actor from the scene
+// Doesn't remove references to the Actor
+const remove = function() {
+  this.parent.removeChild(this)
 }

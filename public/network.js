@@ -33,23 +33,66 @@ socket.addEventListener('message', event => {
       case 5: // Updated player positions
         updatePlayers(message)
         break
+      case 7: // Other player leaving
+        playerLeaving(message)
     }
 })
 
 // Request to join returned
-let joined = function(id) {
+let joined = function(message) {
+  // the message is this player then all other players
+  // separated by commas
+  let players = message.split(",")
+  // first is this player
+  // split message into parts
+  let colour = players[0].substring(0, 6)
+  let x = parseInt(players[0].substring(6, 9))
+  let y = parseInt(players[0].substring(9, 12))
+  let id = players[0].substring(12)
   console.log("Joined with ID " + id)
-    Network.connected = true
-  Game.player.id = id
+  
+  Network.connected = true
+  Game.initPlayer(id, colour, x, y)
+  
+  // loop through the other players
+  let otherPlayers = ""
+  for (let i = 1; i < players.length; i++) {
+    // split into parts
+    let newPlayer = {}
+    newPlayer.colour = players[i].substring(0, 6)
+    newPlayer.x = parseInt(players[i].substring(6, 9))
+    newPlayer.y = parseInt(players[i].substring(9, 12))
+    newPlayer.id = players[i].substring(12)
+    otherPlayers += newPlayer.id + ", "
+    
+    Network.playersToAdd.push(newPlayer)
+  }
+  if (players.length > 1) {
+    console.log("Other players already in game: " + otherPlayers)
+  }
 }
 
 // Another player joined
-let newPlayer = function(id) {
+let newPlayer = function(message) {
+  // split into parts
+  let newPlayer = {}
+  newPlayer.colour = message.substring(0, 6)
+  newPlayer.x = parseInt(message.substring(6, 9))
+  newPlayer.y = parseInt(message.substring(9, 12))
+  newPlayer.id = message.substring(12)
+
   // Ignore if its this player
-  if (id != Game.player.id) {
-    console.log("Another player joined with ID " + id)
-    Network.playersToAdd.push(id)
+  if (newPlayer.id != Game.player.id) {
+    console.log("Another player joined with ID " + newPlayer.id)
+    Network.playersToAdd.push(newPlayer)
   }
+}
+
+// A player left
+let playerLeaving = function(id) {
+  console.log("Player left: " + id)
+  Game.otherPlayers[id].remove()
+  delete Game.otherPlayers[id]
 }
 
 // Receive all player positions from the server
@@ -65,8 +108,10 @@ let updatePlayers = function(players) {
       // Ignore the local player
       if (id != Game.player.id) {
         // update the other players location
-        Game.otherPlayers[id].x = x
-        Game.otherPlayers[id].y = y
+        if (Game.otherPlayers[id]) {
+          Game.otherPlayers[id].x = x
+          Game.otherPlayers[id].y = y
+        }
       }
   })
 }
@@ -75,5 +120,5 @@ let updatePlayers = function(players) {
 Network.update = function() {
   let x = Game.player.x.toFixed(0).padStart(3, '0')
   let y = Game.player.y.toFixed(0).padStart(3, '0')
-  socket.send(`4${x}${y}${Game.player.id}`)
+  socket.send(`4${x}${y}`)
 }
