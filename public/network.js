@@ -4,12 +4,11 @@ Network.playersToAdd = []
 let socket;
 
 // Open the socket
-socket = new WebSocket("ws://" + location.host)
-
-// Socket error events
-socket.addEventListener('error', event => {
-  console.log("Socket Error", event)
-})
+if (location.protocol == "http:") {
+  socket = new WebSocket("ws://" + location.host)
+} else {
+  socket = new WebSocket("wss://" + location.host)
+}
 
 // Once the websocket has opened, send join message
 socket.addEventListener('open', event => {

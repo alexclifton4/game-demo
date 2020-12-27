@@ -1,10 +1,12 @@
 const express = require('express');
 const app = express();
+const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
 const { Server } = require('ws')
 
 let players = {}
 let nextPlayerId = 0
 
+app.use(redirectToHTTPS([/localhost:8080/]))
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
