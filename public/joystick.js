@@ -32,9 +32,8 @@ function Joystick(x, y) {
   inner.on('pointermove', onDragMove);
   
   // Set initial values
-  joystick.xVal = 0
-  joystick.yVal = 0
-  joystick.angle = 0
+  joystick.magnitude = 0
+  joystick.direction = 0
   
   return joystick
 }
@@ -51,30 +50,41 @@ function onDragEnd() {
   // Return to centre
   this.x = 0
   this.y = 0
-  this.parent.xVal = 0
-  this.parent.yVal = 0
+  this.parent.magnitude = 0
+  this.parent.direction = 0
 }
 
 function onDragMove() {
   if (this.dragging) {
-    let newPosition = this.event.getLocalPosition(this.parent);
-    this.x = newPosition.x;
-    this.y = newPosition.y;
+    let pos = this.event.getLocalPosition(this.parent)
     
-    // calculate distance and angle from resting pos
-    let magnitude = Math.sqrt((this.x * this.x) + (this.y * this.y))
-    this.parent.angle = 0
-    this.parent.angle = Math.atan2(this.y, this.x)
+    // Calculate magnitude and angle (in degrees)
+    let magnitude = Math.sqrt((pos.x * pos.x) + (pos.y * pos.y))
+    let angle = Math.atan2(pos.y, pos.x)
     
-    // Restrict to inside outer circle
+    // Restrict magnitude to 128
     if (magnitude > 128) {
-      // recalculate x and y
-      this.x = 128 * Math.cos(this.parent.angle)
-      this.y = 128 * Math.sin(this.parent.angle)
+      magnitude = 128
+      // Move the circle to the restricted position
+      this.x = 128 * Math.cos(angle)
+      this.y = 128 * Math.sin(angle)
+    } else {
+      // Move the circle to the new position
+      this.x = pos.x
+      this.y = pos.y
     }
     
-    // Workout values
-    this.parent.xVal = this.x / 100
-    this.parent.yVal = this.y / 100
+    // Work out the magnitude to set from the magnitude of the joystick
+    if (magnitude > 50) {
+      this.parent.magnitude = 1
+    } else if (magnitude > 10) {
+      this.parent.magnitude = 0.5
+    } else {
+      this.parent.magnitude = 0
+    }
+    
+    // Round angle to nearest 45 degrees (pi/4 rad)
+    let rads = Math.PI / 4
+    this.parent.direction = Math.round(angle / rads) * rads
   }
 }

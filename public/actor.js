@@ -21,9 +21,9 @@ function Actor(x, y, speed, colour) {
 }
 
 // For moving an actor
-const move = function(dx, dy, delta) {
-  this.x += dx * this.speed * delta
-  this.y += dy * this.speed * delta
+const move = function(magnitude, angle, delta) {
+  this.x += delta * this.speed * magnitude * Math.cos(angle)
+  this.y += delta * this.speed * magnitude * Math.sin(angle)
   
   // Restrict movement to the window
   if (this.x < 0) this.x = 0

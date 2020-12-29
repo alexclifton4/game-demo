@@ -27,7 +27,7 @@ Game.update = function(delta) {
   if (Network.connected) {
     addNewPlayers()
     
-    Game.player.move(Game.joystick.xVal, Game.joystick.yVal, delta)
+    Game.player.move(Game.joystick.magnitude, Game.joystick.direction, delta)
     
     timeSinceNetwork += app.ticker.deltaMS
     // See if the network should be updated
