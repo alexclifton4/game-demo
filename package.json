@@ -6,7 +6,6 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "express-http-to-https": "^1.1.4",
     "ws": "^7.3.1"
   }
 }
