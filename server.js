@@ -5,7 +5,7 @@ const { Server } = require('ws')
 let players = {}
 let nextPlayerId = 0
 
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + "/views/index.html")

@@ -1,6 +1,7 @@
 let Network = {}
 Network.connected = false
 Network.playersToAdd = []
+Network.frequency = 100
 let socket;
 
 // Open the socket
@@ -106,10 +107,13 @@ let updatePlayers = function(players) {
       
       // Ignore the local player
       if (id != Game.player.id) {
-        // update the other players location
+        // Add the position to the players interpolation points
         if (Game.otherPlayers[id]) {
-          Game.otherPlayers[id].x = x
-          Game.otherPlayers[id].y = y
+          point = {}
+          point.x = x
+          point.y = y
+          point.time = performance.now()
+          Game.otherPlayers[id].interpolationPoints.push(point)
         }
       }
   })

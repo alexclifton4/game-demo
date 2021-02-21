@@ -11,9 +11,13 @@ function Actor(x, y, speed, colour) {
   actor.y = y
   actor.speed = speed || 1
   
+  // For entity interpolation
+  actor.interpolationPoints = []
+  
   // Add member functions
   actor.move = move
   actor.remove = remove
+  actor.updateInterpolate = updateInterpolate
   
   // Add to the stage and return
   app.stage.addChild(actor)
@@ -30,6 +34,33 @@ const move = function(magnitude, angle, delta) {
   if (this.y < 0) this.y = 0
   if (this.x + this.width > app.screen.width) this.x = app.screen.width - this.width
   if (this.y + this.height > app.screen.height) this.y = app.screen.height - this.height
+}
+
+// For updating an actor controlled by the server or another player
+const updateInterpolate = function() {
+  // The interpolation time is delayed by 2 network frames
+  interpTime = performance.now() - (Network.frequency * 2)
+  let now = performance.now()
+  
+  // Remove all but one of the points that are before the interpTime except one
+  // Also make sure there are at least 2 points
+  while ((this.interpolationPoints.length > 2) && (this.interpolationPoints[1].time < interpTime)) {
+    this.interpolationPoints.shift()
+  }
+  
+  // If there are at least 2 points, interpolate between them
+  if (this.interpolationPoints.length >= 2) {
+    let p1 = this.interpolationPoints[0]
+    let p2 = this.interpolationPoints[1]
+    
+    let t = (interpTime - p1.time) / (p2.time - p1.time)
+    if (t > 1) {
+      t = 1
+    }
+    
+    this.x = (p1.x * (1.0 - t)) + (p2.x * t)
+    this.y = (p1.y * (1.0 - t)) + (p2.y * t)
+  }
 }
 
 // Removes an actor from the scene

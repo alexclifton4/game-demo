@@ -3,7 +3,6 @@ let app;
 let Game = {}
 Game.otherPlayers = {}
 
-const networkFrequency = 100
 let timeSinceNetwork = 0
 
 window.addEventListener("load", () => {
@@ -25,13 +24,18 @@ Game.initPlayer = function(id, colour, x, y) {
 // Main game loop
 Game.update = function(delta) {
   if (Network.connected) {
+    // Update other players
     addNewPlayers()
+    for (let id in Game.otherPlayers) {
+     Game.otherPlayers[id].updateInterpolate()
+    }
     
+    // Update this player
     Game.player.move(Game.joystick.magnitude, Game.joystick.direction, delta)
     
-    timeSinceNetwork += app.ticker.deltaMS
     // See if the network should be updated
-    if (timeSinceNetwork >= networkFrequency && Network.connected) {
+    timeSinceNetwork += app.ticker.deltaMS
+    if (timeSinceNetwork >= Network.frequency && Network.connected) {
       timeSinceNetwork = 0
       Network.update()
     }
