@@ -6,9 +6,9 @@ let socket;
 
 // Open the socket
 if (location.protocol == "http:") {
-  socket = new WebSocket("ws://" + location.host)
+  socket = new WebSocket("ws://" + location.host + location.pathname)
 } else {
-  socket = new WebSocket("wss://" + location.host)
+  socket = new WebSocket("wss://" + location.host + location.pathname)
 }
 
 // Once the websocket has opened, send join message
