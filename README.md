@@ -3,7 +3,7 @@
 I wanted to see if I could make the basics of a multiplayer game system, inspired by Among Us.
 This is a simple demo with only a joystick which moves a square around the screen, but multiple players can be online at the same time.
 
-The demo can be found here: [https://gamedemo.alexclifton.co.uk](https://gamedemo.alexclifton.co.uk).
+The demo can be found here: [https://games.alexclifton.co.uk](https://games.alexclifton.co.uk).
 The server is written with Node.js, while the client uses vanilla JS and PIXI.js for graphics. The two communicate using WebSockets.
 
 Among Us was made with Unity and almost definitely uses a library for network communications, so the goal of this for me was not to replicate the game, but instead the network layer.
