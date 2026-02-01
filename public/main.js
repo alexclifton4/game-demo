@@ -7,6 +7,7 @@ let timeSinceNetwork = 0
 
 window.addEventListener("load", () => {
   // Setup PIXI
+  PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
   app = new PIXI.Application();
   document.getElementById("gameContainer").appendChild(app.view);
   app.ticker.add(Game.update)
